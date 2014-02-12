@@ -25,10 +25,7 @@ public class APIHandler {
 	private String URL;
 	// JSON Response node names
 	private String KEY_SUCCESS = "success";
-	@SuppressWarnings("unused")
-	private String KEY_ERROR_NO = "error";
-	@SuppressWarnings("unused")
-	private String KEY_ERROR_MESSAGE = "error_message";
+	private String KEY_ERROR_MESSAGE = "error";
 
 	/**
 	 * Sets the URL address
@@ -83,7 +80,11 @@ public class APIHandler {
 			}
 		}
 		catch (JSONException e) {
-			Log.d("APIHandler jsonSuccess : " + whichAPIHandler,theProblem);	
+			try {
+				Log.d("APIHandler jsonSuccess : " + whichAPIHandler, json.getString(KEY_ERROR_MESSAGE));
+			} catch (JSONException e1) {
+				Log.e("APIHandler jsonSuccess : " + whichAPIHandler, "An error occurred and there was no error message.");
+			}	
 		}
 		return false;		
 	}

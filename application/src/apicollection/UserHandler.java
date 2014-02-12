@@ -37,7 +37,7 @@ public class UserHandler extends APIHandler {
 		
 		try {
 			JSONObject json = execute();
-			if(jsonSuccess(json, "UserHandler - get","Could not fetch the member")){
+			if(jsonSuccess(json, "UserHandler - get")){
 				if(json.has("member")){
 					JSONObject jsonMember = json.getJSONObject("member");
 					Member member = new Member(jsonMember.getString("phone"), jsonMember.getString("IP"), jsonMember.getInt("port"));
@@ -75,7 +75,7 @@ public class UserHandler extends APIHandler {
 		try{
 			
 			JSONObject json = execute();
-			if(jsonSuccess(json,"UserHandler - add", "Could not add the member."))
+			if(jsonSuccess(json,"UserHandler - add"))
 				return true;
 			else
 				return false;
@@ -104,7 +104,7 @@ public class UserHandler extends APIHandler {
 		try{
 			
 			JSONObject json = execute();
-			if(jsonSuccess(json, "UserHandler change", "Could not edit the member"))
+			if(jsonSuccess(json, "UserHandler change"))
 				return true;
 			else
 				return false;
@@ -131,7 +131,7 @@ public class UserHandler extends APIHandler {
 		try{
 			
 			JSONObject json = execute();
-			if(jsonSuccess(json, "UserHandler - change : ", "Could not delete the member")){
+			if(jsonSuccess(json, "UserHandler - change : ")){
 				return true;
 			}
 				return false;
