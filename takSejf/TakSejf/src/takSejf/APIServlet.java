@@ -71,7 +71,8 @@ public class APIServlet extends HttpServlet {
 		if(result == null)
 			writer.write("{\"error\":\"No such phone.\"}");
 		else{
-			writer.write("{\"item\":{"
+			writer.write("{\"success\":\"1\","
+					+ "\"item\":{"
 					+ "\"phone\":\"" + result.getProperty("phone") + "\","
 					+ "\"IP\":\"" + result.getProperty("IP") + "\","
 					+ "\"port\":\"" + result.getProperty("port") + "\"}}");
@@ -92,6 +93,8 @@ public class APIServlet extends HttpServlet {
 			result.setProperty("IP", req.getParameter("IP"));
 			result.setProperty("port", req.getParameter("port"));
 			storage.put(result);
+			
+			writer.write("{\"success\":\"1\"}");
 		}
 		
 	}
@@ -123,7 +126,9 @@ public class APIServlet extends HttpServlet {
 			row.setProperty("port", req.getParameter("port"));
 			
 			storage.put(row);
-			writer.write("{\"ok\":\"ok\"}");
+			writer.write("{\"success\":\"1\"}");
+		}else{
+			writer.write("{\"error\":\"Some required fields were missing\"}");
 		}
 		
 	}
