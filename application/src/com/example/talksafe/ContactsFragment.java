@@ -11,6 +11,9 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
 
 public class ContactsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 	
@@ -43,6 +46,9 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
         Contacts._ID, // _ID is always required
         Contacts.DISPLAY_NAME_PRIMARY // that's what we want to display
     };
+    
+    private static final String SELECTION = Contacts.HAS_PHONE_NUMBER + " = 1";
+    private static final String SORTORDER = Contacts.DISPLAY_NAME_PRIMARY + " ASC";
 
     // and name should be displayed in the text1 textview in item layout
     private static final String[] FROM = { Contacts.DISPLAY_NAME_PRIMARY };
@@ -59,9 +65,9 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
         return new CursorLoader(getActivity(),
                 contentUri,
                 PROJECTION,
+                SELECTION,
                 null,
-                null,
-                null);
+                SORTORDER);
     }
 
     @Override
@@ -74,6 +80,12 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
     public void onLoaderReset(Loader<Cursor> loader) {
         // on reset take any old cursor away
         mAdapter.swapCursor(null);
+    }
+    
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+    	
+    	Log.d("Hej", "Hello world!");
     }
 
 }
