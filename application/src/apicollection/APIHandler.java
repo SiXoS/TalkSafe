@@ -68,7 +68,7 @@ public class APIHandler {
 	 * @param theProblem Tells the Problem with the APIHanlder, only used when not succeeded
 	 * @return Returns true if the JSONObject was succeeded, false otherwise
 	 */
-	public boolean jsonSuccess(JSONObject json,String whichAPIHandler,String theProblem) {
+	public boolean jsonSuccess(JSONObject json,String whichAPIHandler) {
 		
 		try {
 			// If JSON object contains success key 

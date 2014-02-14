@@ -24,6 +24,27 @@ public class Member {
 		this.IPAdress = IPAdress;
 		this.portNumber = portNumber;
 	}
+	
+	public Member clone(){
+		return new Member(phone,IPAdress, portNumber);
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		
+		if(other == null)
+			return false;
+		
+		if(!(other instanceof Member))
+			return false;
+		
+		Member mem = (Member)other;
+		if(mem.getPhone().equals(getPhone()) && mem.getIPAdress().equals(getIPAdress()) && mem.getPortNumber() == getPortNumber())
+			return true;
+		
+		return false;
+		
+	}
 
 	
 	/**
