@@ -3,36 +3,33 @@ package com.example.talksafe.test;
 import java.net.ConnectException;
 
 import junit.framework.TestCase;
+import android.util.Log;
 import apicollection.Member;
 import apicollection.UserHandler;
 
 public class APITest extends TestCase {
 	
-	public void testGet(){
-		
-		UserHandler handler = new UserHandler();
+	UserHandler handler;
+	
+	@Override
+	public void setUp(){
+		handler = new UserHandler();
 		try{
-			Member mem = handler.get(Member.phoneNumberToHash("2474"));
-			assertTrue(mem.getPhone().equals(Member.phoneNumberToHash("2474")));
-		}catch(ConnectException e){
-			assertTrue(false);
-		}catch(Exception e){
-			assertTrue(false);
-		}
-		
+			handler.delete(Member.phoneNumberToHash("6456"));
+			handler.delete(Member.phoneNumberToHash("24255"));
+			handler.delete(Member.phoneNumberToHash("24256"));
+		}catch(Exception e){}
 	}
 	
-	public void testAdd(){
+	public void testGetAndAdd(){
 		
-		UserHandler handler = new UserHandler();
-		try {
-			Member mem = new Member("2474","192",5060);
-			mem.phoneNumberToHash();
-			assertTrue(handler.add(mem));
-			Member mem2 = handler.get(mem.getPhone());
-			assertEquals(mem,mem2);
-			
-		} catch (ConnectException e) {
+		try{
+			Member mem1 = new Member("6456","123", 364);
+			mem1.phoneNumberToHash();
+			assertTrue(handler.add(mem1));
+			Member mem = handler.get(Member.phoneNumberToHash("6456"));
+			assertEquals(mem, mem1);
+		}catch(ConnectException e){
 			assertTrue(false);
 		}catch(Exception e){
 			assertTrue(false);
@@ -42,7 +39,6 @@ public class APITest extends TestCase {
 	
 	public void testDelete(){
 		
-		UserHandler handler = new UserHandler();
 		try{
 			Member mem = new Member("24255","192",5060);
 			mem.phoneNumberToHash();
@@ -59,9 +55,8 @@ public class APITest extends TestCase {
 	
 	public void testEdit(){
 		
-		UserHandler handler = new UserHandler();
 		try{
-			Member mem = new Member("24255","192",5060);
+			Member mem = new Member("24256","192",5060);
 			mem.phoneNumberToHash();
 			Member mem2 = mem.clone();
 			mem2.setIPAdress("168");

@@ -62,7 +62,11 @@ public class Member {
 		try{
 			MessageDigest digester = MessageDigest.getInstance("MD5");
 			byte[] bytes = digester.digest(phone.getBytes());
-			return new String(bytes);
+			StringBuilder sb = new StringBuilder();
+	        for(byte b : bytes){
+	            sb.append(String.format("%02x", b&0xff));
+	        }
+			return sb.toString();
 		}catch(NoSuchAlgorithmException e){
 			Log.e("Member - phoneNumberToHash", "No such algorithm raised.");
 			throw new Exception("The encryption failed");
@@ -76,8 +80,8 @@ public class Member {
 	 * @return A string with the encrypted String
 	 * @throws Exception If an error occurred during hashing.
 	 */
-	public String phoneNumberToHash() throws Exception{
-		return phoneNumberToHash(phone);
+	public void phoneNumberToHash() throws Exception{
+		phone = phoneNumberToHash(phone);
 	}
 
 	public String getPhone() {
@@ -102,6 +106,11 @@ public class Member {
 
 	public void setPortNumber(int portNumber) {
 		this.portNumber = portNumber;
+	}
+	
+	@Override
+	public String toString(){
+		return "[" + getPhone() + ", " + getIPAdress() + ", " + getPortNumber() + "]";
 	}
 
 }

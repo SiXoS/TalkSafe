@@ -38,8 +38,8 @@ public class UserHandler extends APIHandler {
 		try {
 			JSONObject json = execute();
 			if(jsonSuccess(json, "UserHandler - get")){
-				if(json.has("member")){
-					JSONObject jsonMember = json.getJSONObject("member");
+				if(json.has("item")){
+					JSONObject jsonMember = json.getJSONObject("item");
 					Member member = new Member(jsonMember.getString("phone"), jsonMember.getString("IP"), jsonMember.getInt("port"));
 					return member;
 				}else
