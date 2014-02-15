@@ -49,10 +49,20 @@ public class APIServlet extends HttpServlet {
         	get(req, resp.getWriter());
         }else if(req.getParameter("delete") != null){
         	delete(req,resp.getWriter());
+        }else if(req.getParameter("deleteAll") != null){
+        	deleteAll(req,resp.getWriter());
         }else
         	resp.getWriter().write("{\"error\": \"No valid argument supplied\"}");
         	
     }
+	
+	private void deleteAll(HttpServletRequest req, PrintWriter writer){
+		Query row = new Query("row", parent.getKey());
+		List<Entity> result = storage.prepare(row).asList(FetchOptions.Builder.withLimit(20));
+		for(Entity res : result)
+			storage.delete(res.getKey());
+		writer.write("done");
+	}
 	
 	private void delete(HttpServletRequest req, PrintWriter writer){
 		Query row = new Query("row", parent.getKey()).setFilter(new FilterPredicate("phone", FilterOperator.EQUAL, req.getParameter("delete")));
@@ -118,6 +128,14 @@ public class APIServlet extends HttpServlet {
 	private void add(HttpServletRequest req, PrintWriter writer){
 		
 		if(req.getParameter("phone") != null && req.getParameter("IP") != null && req.getParameter("port") != null){
+			
+			Query allreadyExists = new Query("row", parent.getKey()).setFilter(new FilterPredicate("phone", FilterOperator.EQUAL, req.getParameter("phone")));
+			Entity item = storage.prepare(allreadyExists).asSingleEntity();
+			if(item != null){
+				writer.write("{\"error\":\"This number is allready registered\"}");
+				return;
+			}
+			
 			long newIndex = incIndex();
 			Key key = KeyFactory.createKey(parent.getKey(),"row", newIndex);
 			Entity row = new Entity("row",key);
