@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import android.app.Activity;
 import android.media.AudioFormat;
@@ -29,6 +27,7 @@ public class MainActivity extends Activity {
 	private Thread recordingThread = null;
 	private boolean isRecording = false;
 	private Enc encrypter;
+	private AudioTrack player = null;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,6 +44,12 @@ public class MainActivity extends Activity {
 
 		int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
 				RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING); 
+		
+		int intSize = android.media.AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_MONO,
+				AudioFormat.ENCODING_PCM_16BIT); 
+		player = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO,
+				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STATIC); 
+		
 	}
 
 	private void setButtonHandlers() {
@@ -92,6 +97,14 @@ public class MainActivity extends Activity {
 		}
 		return bytes;
 
+	}
+	
+	private short[] byteToShort(byte[] data){
+		short[] shorts = new short[data.length/2];
+		for(int i = 0 ; i<data.length ; i+=2){
+			shorts[i/2] = (short) ((((short)data[i]) << 8) | ((short) data[i+1]));
+		}
+		return shorts;
 	}
 
 	private void writeAudioDataToFile() {
@@ -214,11 +227,6 @@ public class MainActivity extends Activity {
 		String encrypted = "/sdcard/voice8K16bitmono.pcm";
 		String decrypted = "/sdcard/voice8K16bitmonodec.pcm";
 		
-		int intSize = android.media.AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT); 
-		AudioTrack at = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STATIC); 
-		
 		File encr = new File(encrypted);
 		FileInputStream reader = new FileInputStream(encr);
 		byte[] contents = new byte[(int) encr.length()];
@@ -226,7 +234,21 @@ public class MainActivity extends Activity {
 		reader.close();
 		
 		encrypter.initDecrypt();
-		at.play();
+		int counter = 100000;
+		boolean notWorking = true;
+		while(notWorking){
+			try{
+				player.play();
+				notWorking=false;
+			}catch(IllegalStateException e){
+				if(counter-- == 0){
+					IllegalStateException er = new IllegalStateException(e.getMessage() + " Counter: " + counter,e.getCause());
+					er.setStackTrace(e.getStackTrace());
+					throw er;
+				}
+			}
+		}
+		Log.d("Testing play function", "times: " + counter);
 		
 		int n = 0, m=0;
 		byte[] newContents = new byte[contents.length];
@@ -235,15 +257,15 @@ public class MainActivity extends Activity {
 			temp[n++] = b;
 			if(n==128){
 				temp2 = encrypter.decrypt(temp);
-				at.write(temp2, 0, temp2.length);
+				player.write(byteToShort(temp2), 0, temp2.length);
 				for(byte x : temp2){
 					newContents[m++] = x;
 				}
 				n=0;
 			}
 		}
-		at.stop();
-		at.release();
+		player.stop();
+		player.release();
 		/*File decr = new File(decrypted);
 		if(!decr.exists())
 			decr.createNewFile();
@@ -278,7 +300,7 @@ public class MainActivity extends Activity {
 		int intSize = android.media.AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_MONO,
 				AudioFormat.ENCODING_PCM_16BIT); 
 		AudioTrack at = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM); 
+				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STATIC); 
 		if (at!=null) { 
 			at.play();
 			// Write the byte array to the track
