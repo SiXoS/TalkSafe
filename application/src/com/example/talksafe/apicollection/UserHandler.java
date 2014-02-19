@@ -5,6 +5,8 @@ import java.net.ConnectException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.talksafe.apicollection.exceptions.MessageException;
+
 import android.util.Log;
 
 /**
@@ -28,11 +30,10 @@ public class UserHandler extends APIHandler {
 	 * Gets the member with the specified hashed phone number.
 	 * 
 	 * @param hashedPhoneNumber The phone number hashed with Member.phoneNumberToHash()
-	 * @return A Member object containing the hashed phone number and contact information.
-	 * @throws ConnectException
-	 * @throws JSONException
+	 * @return A Member object containing the hashed phone number and contact information. May be null on error.
+	 * @throws MessageException Contains a user friendly error from the database
 	 */
-	public Member get(String hashedPhoneNumber) throws ConnectException, JSONException{
+	public Member get(String hashedPhoneNumber) throws MessageException{
 		bindParam("get",hashedPhoneNumber);
 		
 		try {
@@ -45,15 +46,41 @@ public class UserHandler extends APIHandler {
 				}else
 					return null;
 				
-			}else
+			}else{
+				Log.d("UserHandler - get",getError());
 				return null;
+			}
 			
-		} catch (ConnectException e) {
-			Log.e("UserHandler - get : ", e.getMessage());
+		}catch(MessageException e){
 			throw e;
-		}catch(JSONException e){
+		}catch (Exception e) {
 			Log.e("UserHandler - get : ", e.getMessage());
+			return null;
+		}
+	}
+	
+	/**
+	 * 
+	 * Signals the database that the user is still online. Should be called once a minute.
+	 * 
+	 * @param hashedPhoneNumber
+	 * @return
+	 * @throws MessageException Contains a user friendly error from the database
+	 */
+	public boolean update(String hashedPhoneNumber) throws MessageException{
+		bindParam("update", hashedPhoneNumber);
+		
+		try{
+			JSONObject json = execute();
+			if(jsonSuccess(json, "UserHandler - update")){
+				return true;
+			}else
+				return false;
+		}catch(MessageException e){
 			throw e;
+		}catch(Exception e){
+			Log.d("UserHandler - update", e.getMessage());
+			return false;
 		}
 	}
 	
@@ -63,9 +90,9 @@ public class UserHandler extends APIHandler {
 	 * 
 	 * @param member
 	 * @return true if the member was added, else false
-	 * @throws ConnectException If there was on error connecting to the server
+	 * @throws MessageException Contains a user friendly error from the database
 	 */
-	public boolean add(Member member) throws ConnectException{
+	public boolean add(Member member) throws MessageException{
 		
 		bindParam("add","yes");
 		bindParam("phone",member.getPhone());
@@ -80,9 +107,11 @@ public class UserHandler extends APIHandler {
 			else
 				return false;
 			
-		}catch(ConnectException e){
-			Log.e("UserHandler - add : ", e.getMessage());
+		}catch(MessageException e){
 			throw e;
+		}catch(Exception e){
+			Log.e("UserHandler - add : ", e.getMessage());
+			return false;
 		}
 		
 	}
@@ -93,9 +122,9 @@ public class UserHandler extends APIHandler {
 	 * 
 	 * @param member 
 	 * @return
-	 * @throws ConnectException If there was on error connecting to the server
+	 * @throws MessageException Contains a user friendly error from the database
 	 */
-	public boolean change(Member member) throws ConnectException{
+	public boolean change(Member member) throws MessageException{
 		
 		bindParam("editIP",member.getPhone());
 		bindParam("IP", member.getIPAdress());
@@ -109,9 +138,11 @@ public class UserHandler extends APIHandler {
 			else
 				return false;
 			
-		}catch(ConnectException e){
-			Log.e("UserHandler - change : ", e.getMessage());
+		}catch(MessageException e){
 			throw e;
+		}catch(Exception e){
+			Log.e("UserHandler - change : ", e.getMessage());
+			return false;
 		}
 		
 	}
@@ -122,9 +153,9 @@ public class UserHandler extends APIHandler {
 	 * 
 	 * @param phone hashed phone number to be deleted
 	 * @return true on success, else false
-	 * @throws ConnectException If there was on error connecting to the server
+	 * @throws MessageException Contains a user friendly error from the database
 	 */
-	public boolean delete(String phone) throws ConnectException{
+	public boolean delete(String phone) throws MessageException{
 		
 		bindParam("delete", phone);
 		
@@ -136,9 +167,11 @@ public class UserHandler extends APIHandler {
 			}
 				return false;
 			
-		}catch(ConnectException e){
-			Log.e("UserHandler - delete : ", e.getMessage());
+		}catch(MessageException e){
 			throw e;
+		}catch(Exception e){
+			Log.e("UserHandler - delete : ", e.getMessage());
+			return false;
 		}
 		
 	}

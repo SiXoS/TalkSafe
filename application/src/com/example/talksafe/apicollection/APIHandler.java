@@ -9,6 +9,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.talksafe.apicollection.exceptions.FatalException;
+import com.example.talksafe.apicollection.exceptions.MessageException;
+
 import android.util.Log;
 
 
@@ -26,6 +29,12 @@ public class APIHandler {
 	// JSON Response node names
 	private String KEY_SUCCESS = "success";
 	private String KEY_ERROR_MESSAGE = "error";
+	private String KEY_FATAL_ERROR = "fatal";
+	private String error;
+	
+	public String getError(){
+		return error;
+	}
 
 	/**
 	 * Sets the URL address
@@ -67,8 +76,10 @@ public class APIHandler {
 	 * @param whichAPIHandler Tells which APIHandler that called function, only used when not succeeded
 	 * @param theProblem Tells the Problem with the APIHanlder, only used when not succeeded
 	 * @return Returns true if the JSONObject was succeeded, false otherwise
+	 * @throws FatalException If the server returned a fatal error. This implies that the called API function has errors.
+	 * @throws MessageException If the server returned an expected user friendly error. This should be displayed to the user.
 	 */
-	public boolean jsonSuccess(JSONObject json,String whichAPIHandler) {
+	public boolean jsonSuccess(JSONObject json,String whichAPIHandler) throws FatalException, MessageException {
 		
 		try {
 			// If JSON object contains success key 
@@ -81,7 +92,12 @@ public class APIHandler {
 		}
 		catch (JSONException e) {
 			try {
-				Log.d("APIHandler jsonSuccess : " + whichAPIHandler, json.getString(KEY_ERROR_MESSAGE));
+				if(json.has(KEY_FATAL_ERROR))
+					throw new FatalException(json.getString(KEY_ERROR_MESSAGE));
+				else{
+					Log.d("APIHandler jsonSuccess : " + whichAPIHandler, json.getString(KEY_ERROR_MESSAGE));
+					throw new MessageException(json.getString(KEY_ERROR_MESSAGE));
+				}
 			} catch (JSONException e1) {
 				Log.e("APIHandler jsonSuccess : " + whichAPIHandler, "An error occurred and there was no error message.");
 			}	
