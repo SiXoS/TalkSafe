@@ -51,8 +51,10 @@ public class APIServlet extends HttpServlet {
         	delete(req,resp.getWriter());
         }else if(req.getParameter("deleteAll") != null){
         	deleteAll(req,resp.getWriter());
+        }else if(req.getParameter("update") != null){
+        	update(req,resp.getWriter());
         }else
-        	resp.getWriter().write("{\"error\": \"No valid argument supplied\"}");
+        	resp.getWriter().write("{\"error\": \"No valid argument supplied\",\"fatal\":\"fatal\"}");
         	
     }
 	
@@ -68,9 +70,27 @@ public class APIServlet extends HttpServlet {
 		Query row = new Query("row", parent.getKey()).setFilter(new FilterPredicate("phone", FilterOperator.EQUAL, req.getParameter("delete")));
 		Entity result = storage.prepare(row).asSingleEntity();
 		if(result == null){
-			writer.write("{\"error\":\"No such phone.\"}");
+			writer.write("{\"error\":\"This phone is not registered.\"}");
 		}else{
 			storage.delete(result.getKey());
+			writer.write("{\"success\":\"1\"}");
+		}
+	}
+	
+	private void update(HttpServletRequest req, PrintWriter writer){
+		if(req.getParameter("update") == null ){
+			writer.write("{\"error\":\"Some required arguments was missing.\",\"fatal\":\"fatal\"}");
+			return;
+		}
+		
+		Query row = new Query("row", parent.getKey()).setFilter(new FilterPredicate("phone", FilterOperator.EQUAL, req.getParameter("update")));
+		Entity result = storage.prepare(row).asSingleEntity();
+		if(result == null)
+			writer.write("{\"error\":\"This phone is not registered\"}");
+		else{
+			result.setProperty("timestamp", System.currentTimeMillis());
+			storage.put(result);
+			
 			writer.write("{\"success\":\"1\"}");
 		}
 	}
@@ -79,7 +99,11 @@ public class APIServlet extends HttpServlet {
 		Query row = new Query("row", parent.getKey()).setFilter(new FilterPredicate("phone", FilterOperator.EQUAL, req.getParameter("get")));
 		Entity result = storage.prepare(row).asSingleEntity();
 		if(result == null)
-			writer.write("{\"error\":\"No such phone.\"}");
+			writer.write("{\"error\":\"This phone is not registered.\"}");
+		else if(!result.getProperty("remoteIP").equals(req.getRemoteAddr()))
+			writer.write("{\"error\":\"This phone is not on your network.\"}");
+		else if((long)result.getProperty("timestamp") < System.currentTimeMillis()-1000*70)
+			writer.write("{\"error\":\"This user is logged out.\"}");
 		else{
 			writer.write("{\"success\":\"1\","
 					+ "\"item\":{"
@@ -91,17 +115,19 @@ public class APIServlet extends HttpServlet {
 	
 	private void editIP(HttpServletRequest req, PrintWriter writer){
 		if(req.getParameter("IP") == null && req.getParameter("port") == null){
-			writer.write("{\"error\":\"Some required parameters is missing.\"}");
+			writer.write("{\"error\":\"Some required parameters is missing.\", \"fatal\":\"fatal\"}");
 			return;
 		}
 		
 		Query row = new Query("row", parent.getKey()).setFilter(new FilterPredicate("phone", FilterOperator.EQUAL, req.getParameter("editIP")));
 		Entity result = storage.prepare(row).asSingleEntity();
 		if(result == null){
-			writer.write("{\"error\":\"No such phone.\"}");
+			writer.write("{\"error\":\"This phone is not registered.\"}");
 		}else{
 			result.setProperty("IP", req.getParameter("IP"));
 			result.setProperty("port", req.getParameter("port"));
+			result.setProperty("remoteIP", req.getRemoteAddr());
+			result.setProperty("timestamp", System.currentTimeMillis());
 			storage.put(result);
 			
 			writer.write("{\"success\":\"1\"}");
@@ -120,7 +146,9 @@ public class APIServlet extends HttpServlet {
 			else first = false;
 			writer.write("{\"phone\":\"" + row.getProperty("phone") + "\", "
 						+ "\"IP\":\"" + row.getProperty("IP") + "\", "
-						+ "\"port\":\"" + row.getProperty("port") + "\"}");
+						+ "\"port\":\"" + row.getProperty("port") + "\","
+						+ "\"remote IP\":\"" + row.getProperty("remoteIP") + "\","
+						+ "\"timestamp\":\"" + row.getProperty("timestamp") + "\"}");
 		}
 		writer.write("]}");
 	}
@@ -142,16 +170,18 @@ public class APIServlet extends HttpServlet {
 			row.setProperty("phone", req.getParameter("phone"));
 			row.setProperty("IP", req.getParameter("IP"));
 			row.setProperty("port", req.getParameter("port"));
+			row.setProperty("remoteIP", req.getRemoteAddr());
+			row.setProperty("timestamp", System.currentTimeMillis());
 			
 			storage.put(row);
 			writer.write("{\"success\":\"1\"}");
 		}else{
-			writer.write("{\"error\":\"Some required fields were missing\"}");
+			writer.write("{\"error\":\"Some required fields were missing\",\"fatal\":\"fatal\"}");
 		}
 		
 	}
 	
-	private long incIndex(){
+	private synchronized long incIndex(){
 		
 		long newIndex = (long)parent.getProperty("lastIndex") + 1;
 		parent.setProperty("lastIndex", newIndex);
