@@ -1,4 +1,4 @@
-package com.example.talksafe;
+package com.example.talksafe.client;
 
 import android.content.Context;
 import android.database.Cursor;

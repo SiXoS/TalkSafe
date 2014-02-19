@@ -1,4 +1,6 @@
-package com.example.talksafe;
+package com.example.talksafe.client;
+
+import com.example.talksafe.R;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;

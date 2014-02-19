@@ -1,4 +1,4 @@
-package com.example.talksafe;
+package com.example.talksafe.network;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
