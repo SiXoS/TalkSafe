@@ -9,7 +9,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import android.os.AsyncTask;
-import android.provider.Settings.Global;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -17,14 +16,17 @@ import com.example.talksafe.apicollection.Member;
 import com.example.talksafe.apicollection.UserHandler;
 import com.example.talksafe.apicollection.exceptions.MessageException;
 import com.example.talksafe.client.ApplicationState;
+import com.example.talksafe.client.CallView;
 
 public class Caller extends AsyncTask<Void, String, Result> {
 	
 	private String phone;
 	private TextView status;
+	private CallView activity;
 	
-	public Caller(String phone, TextView status){
+	public Caller(String phone, TextView status, CallView activity){
 		
+		this.activity = activity;
 		this.status = status;
 		this.phone = phone;
 		
@@ -35,6 +37,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 
 		ApplicationState state = ApplicationState.getInstance();
 		state.setBusy(true);
+		publishProgress("Looking up user...");
 		
 		UserHandler handler = new UserHandler();
 		try {
@@ -62,6 +65,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 					try {
 						
 						Log.d("Sender", (sender==null) +"");
+						publishProgress("Establishing connection...");
 						sender.send(msg);
 						sender.close();
 						
@@ -71,7 +75,9 @@ public class Caller extends AsyncTask<Void, String, Result> {
 						try {
 							callListener.setSoTimeout(2000);
 							callListener.receive(incoming);
+							publishProgress("Calling user...");
 							callListener.close();
+							return new Result(incoming, true);
 
 						}catch(SocketTimeoutException e){
 							
@@ -84,36 +90,65 @@ public class Caller extends AsyncTask<Void, String, Result> {
 							
 							e.printStackTrace();
 							callListener.close();
+							return new Result("", false, e.getMessage());
 							
 						}
 
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
+						callListener.close();
+						sender.close();
+						return new Result("", false, e.getMessage());
+						
 					}
 					
 				} catch (UnknownHostException e1) {
-					// TODO Auto-generated catch block
+
 					e1.printStackTrace();
+					callListener.close();
+					sender.close();
+					return new Result("", false, e1.getMessage());
+					
 				}
 			
 			}catch(SocketException e) {
 				e.printStackTrace();
+				return new Result("", false, e.getMessage());
 			}
 			
 			
 		} catch (MessageException e) {
 			return new Result(e.getMessage(), false);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
-		} 
-		return null;
+			return new Result("", false, e.getMessage());
+			
+		}
+		
 	}
 	
-	private void standardCatch(){
-		ApplicationState state = ApplicationState.getInstance();
-		state.setBusy(false);
+	@Override
+	protected void onProgressUpdate(String... update){
+		
+		String statusText = update[0];
+		status.setText(statusText);
+		
+	}
+	
+	@Override
+	protected void onPostExecute(Result result){
+		if(result.isSuccess()){
+			status.setText("Success!");
+		}else{
+			Log.d("Caller failed", result.getFatal());
+			status.setText(result.getMessage());
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {}
+			activity.finish();
+		}
 	}
 
 }
