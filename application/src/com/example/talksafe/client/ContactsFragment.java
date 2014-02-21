@@ -1,7 +1,5 @@
 package com.example.talksafe.client;
 
-import com.example.talksafe.CallView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
