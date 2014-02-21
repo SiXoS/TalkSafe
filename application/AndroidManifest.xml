@@ -28,7 +28,8 @@
         </activity>
         <activity
             android:name="com.example.talksafe.CallView"
-            android:label="@string/title_activity_call_view" >
+            android:label="@string/title_activity_call_view"
+            android:parentActivityName="com.example.talksafe.client.MainActivity" >
         </activity>
     </application>
 

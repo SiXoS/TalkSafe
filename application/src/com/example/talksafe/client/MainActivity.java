@@ -36,8 +36,8 @@ public class MainActivity extends FragmentActivity {
 		if(firstTime()) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-			alert.setTitle("Title");
-			alert.setMessage("Message");
+			alert.setTitle("Phone number");
+			alert.setMessage("Type your phone number to register to the app.");
 
 			// Set an EditText view to get user input 
 			final EditText input = new EditText(this);
@@ -52,6 +52,7 @@ public class MainActivity extends FragmentActivity {
 						file.createNewFile();
 						FileWriter fw = new FileWriter(file);
 						fw.write(value);
+						fw.close();
 					}catch(IOException e){
 						e.printStackTrace();
 					}

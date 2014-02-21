@@ -99,10 +99,11 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
     			null,
     			null);
         while(phones.moveToNext()) number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
-        Log.d("Nummer", number);
         
     	Intent intent = new Intent(getActivity(), CallView.class);
-    	intent.putExtra("phone", number);
+    	intent.putExtra(CallView.PHONE_KEY, number);
+    	intent.putExtra(CallView.NAME_KEY, "Name"); //TODO ändra till riktiga namnet
+    	getActivity().startActivity(intent);
     }
 
 }
