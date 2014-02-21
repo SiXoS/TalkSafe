@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import android.app.Activity;
 import android.media.AudioFormat;
@@ -13,6 +13,7 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -48,7 +49,7 @@ public class MainActivity extends Activity {
 		int intSize = android.media.AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_MONO,
 				AudioFormat.ENCODING_PCM_16BIT); 
 		player = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STATIC); 
+				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM); 
 		
 	}
 
@@ -236,9 +237,11 @@ public class MainActivity extends Activity {
 		encrypter.initDecrypt();
 		int counter = 100000;
 		boolean notWorking = true;
+		Player asyncPlayer = null;
 		while(notWorking){
 			try{
 				player.play();
+				asyncPlayer = new Player(player);
 				notWorking=false;
 			}catch(IllegalStateException e){
 				if(counter-- == 0){
@@ -250,19 +253,25 @@ public class MainActivity extends Activity {
 		}
 		Log.d("Testing play function", "times: " + counter);
 		
-		int n = 0, m=0;
-		byte[] newContents = new byte[contents.length];
+		int n = 0, s=0;
 		byte[] temp = new byte[128], temp2 = new byte[115];
+		ByteBuffer buf = ByteBuffer.allocate(115*10);
 		for(byte b : contents){
 			temp[n++] = b;
 			if(n==128){
 				temp2 = encrypter.decrypt(temp);
-				player.write(byteToShort(temp2), 0, temp2.length);
-				for(byte x : temp2){
-					newContents[m++] = x;
+				if(s++ == 10){
+					player.write(buf.array(), 0, 115*10);
+					buf = (ByteBuffer) buf.clear();
+					s=1;
 				}
+				
+				buf.put(temp2);
 				n=0;
 			}
+		}
+		if(s != 1){
+			player.write(buf.array(),0,s);
 		}
 		player.stop();
 		player.release();
@@ -311,5 +320,20 @@ public class MainActivity extends Activity {
 		else
 			Log.d("TCAudio", "audio track is not initialised ");
 
+	}
+	private class Player extends AsyncTask<byte[], Void, Void> {
+		
+		private AudioTrack player;
+		
+		public Player(AudioTrack player){
+			this.player = player;
+		}
+		
+		@Override
+		protected Void doInBackground(byte[]... params) {
+			byte[] toWrite = params[0];
+			player.write(toWrite, 0, toWrite.length);
+			return null;
+		}
 	}
 }
