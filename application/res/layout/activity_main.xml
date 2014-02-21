@@ -8,9 +8,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <fragment android:name="com.example.talksafe.ContactsFragment"
-    		  android:id="@+id/contacts_fragment"
-    		  android:layout_width="match_parent"
-              android:layout_height="match_parent" />
+    <Button
+        android:id="@+id/call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Skicka" />
+
+    <Button
+        android:id="@+id/recieveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/call"
+        android:layout_centerHorizontal="true"
+        android:text="Ta emot" />
 
 </RelativeLayout>
