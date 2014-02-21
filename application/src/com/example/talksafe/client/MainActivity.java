@@ -1,10 +1,27 @@
 package com.example.talksafe.client;
 
-import com.example.talksafe.R;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
+import org.apache.http.conn.util.InetAddressUtils;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
+import android.widget.EditText;
+
+import com.example.talksafe.R;
+import com.example.talksafe.apicollection.Member;
+import com.example.talksafe.apicollection.UserHandler;
+import com.example.talksafe.apicollection.exceptions.MessageException;
 
 public class MainActivity extends FragmentActivity {
 
@@ -12,6 +29,46 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		File f = new File(getFilesDir(), "registered.txt");
+		f.delete();		
+		
+		if(firstTime()) {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+			alert.setTitle("Title");
+			alert.setMessage("Message");
+
+			// Set an EditText view to get user input 
+			final EditText input = new EditText(this);
+			alert.setView(input);
+
+			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					String value = input.getText().toString();
+					File folder = getFilesDir();
+					File file = new File(folder,"registered.txt");
+					try{
+						file.createNewFile();
+						FileWriter fw = new FileWriter(file);
+						fw.write(value);
+					}catch(IOException e){
+						e.printStackTrace();
+					}
+					(new Thread(new Registerer(value))).start();
+				}
+			});
+
+			/*alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// Canceled.
+				}
+			});*/
+
+			alert.show();
+			// see http://androidsnippets.com/prompt-user-input-with-an-alertdialog
+		}
+		
 	}
 
 	@Override
@@ -20,5 +77,58 @@ public class MainActivity extends FragmentActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	private boolean firstTime() {
+		File folder = getFilesDir();
+		String[] files = folder.list();
+		boolean found = false;
+		for(String name : files)
+			if(name.equals("registered.txt"))
+				found = true;
+		return !found;
+	}
 
+	
+	private class Registerer implements Runnable{
+		
+		private String phone;
+		
+		public Registerer(String phone){ this.phone = phone;}
+		
+		@Override
+		public void run(){
+			String IpAddr = ""; 
+			try {
+				for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en
+						.hasMoreElements();) {
+					NetworkInterface intf = en.nextElement();
+					for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr
+							.hasMoreElements();) {
+						InetAddress inetAddress = enumIpAddr.nextElement();
+						if (!inetAddress.isLoopbackAddress()) {
+							IpAddr = inetAddress.getHostAddress().toString();
+							// Filter out IPv6 addresses
+
+							if (InetAddressUtils.isIPv6Address(IpAddr)) {
+								IpAddr = null;
+							}
+						}
+					}
+				}
+
+			} catch (SocketException se) {
+				Log.e("GuC", "Error getting ip address");
+			}
+			Member member = new Member(phone, IpAddr, 25566);
+			UserHandler handler = new UserHandler();
+			try {
+				handler.add(member);
+			} catch (MessageException e) {
+				// TODO Auto-generated catch block
+				Log.e("First time", e.getMessage());
+			}
+		}
+
+	}
+	
 }

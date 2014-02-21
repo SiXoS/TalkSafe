@@ -1,9 +1,14 @@
 package com.example.talksafe.client;
 
+import com.example.talksafe.CallView;
+
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -44,7 +49,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
     // columns requested from the database
     private static final String[] PROJECTION = {
         Contacts._ID, // _ID is always required
-        Contacts.DISPLAY_NAME_PRIMARY // that's what we want to display
+        Contacts.DISPLAY_NAME_PRIMARY, // that's what we want to display
     };
     
     private static final String SELECTION = Contacts.HAS_PHONE_NUMBER + " = 1";
@@ -83,9 +88,23 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
     }
     
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-    	
-    	Log.d("Hej", "Hello world!");
+    public void onListItemClick(ListView l, View v, int position, long id) {		
+   	
+        Cursor name = mAdapter.getCursor();
+        name.moveToPosition(position);
+        
+        String number = "";
+        Cursor phones = getActivity().getContentResolver().query(
+    			ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+    			null,
+    			ContactsContract.CommonDataKinds.Phone.TYPE +" = "+ ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE + " AND " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + name.getString(0), 
+    			null,
+    			null);
+        while(phones.moveToNext()) number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
+        Log.d("Nummer", number);
+        
+    	Intent intent = new Intent(getActivity(), CallView.class);
+    	intent.putExtra("phone", number);
     }
 
 }
