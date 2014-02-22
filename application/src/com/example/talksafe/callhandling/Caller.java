@@ -7,6 +7,9 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -23,6 +26,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 	private String phone;
 	private TextView status;
 	private CallView activity;
+	private final byte[] delimiter = "[keyDel]".getBytes();
 	
 	public Caller(String phone, TextView status, CallView activity){
 		
@@ -37,6 +41,8 @@ public class Caller extends AsyncTask<Void, String, Result> {
 
 		ApplicationState state = ApplicationState.getInstance();
 		state.setBusy(true);
+		Encrypter enc = new Encrypter();
+		RSAPublicKey key = enc.init();
 		publishProgress("Looking up user...");
 		
 		UserHandler handler = new UserHandler();
@@ -48,7 +54,12 @@ public class Caller extends AsyncTask<Void, String, Result> {
 				DatagramSocket callListener = new DatagramSocket(25566);
 				DatagramSocket sender = new DatagramSocket();
 				
-				byte[] data = "hej".getBytes();
+				byte[] mod = key.getModulus().toByteArray();
+				byte[] exp = key.getPublicExponent().toByteArray();
+				ByteBuffer buf = ByteBuffer.allocate(mod.length + delimiter.length + exp.length);
+				buf.put(mod); buf.put(delimiter); buf.put(exp);
+				byte[] data = buf.array();
+				
 				InetAddress targetDevice = null;
 
 				try {
