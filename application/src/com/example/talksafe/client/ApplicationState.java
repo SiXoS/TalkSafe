@@ -9,13 +9,9 @@ public class ApplicationState {
 	private boolean isBusy = false;
 	
 	private Semaphore incomingEncryptedHasContent = new Semaphore(0);
-	private Semaphore incomingDecryptedHasContent = new Semaphore(0);
-	private Semaphore outgoingDecryptedHasContent = new Semaphore(0);
 	private Semaphore outgoingEncryptedHasContent = new Semaphore(0);
 	
 	private byte[] incomingEncrypted;
-	private byte[] incomingDecrypted;
-	private byte[] outgoingDecrypted;
 	private byte[] outgoingEncrypted;
 	
 	private ApplicationState(){

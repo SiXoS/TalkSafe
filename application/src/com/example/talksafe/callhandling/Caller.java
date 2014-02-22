@@ -60,7 +60,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 
 					DatagramPacket msg = new DatagramPacket(data,0, data.length,targetDevice,toCall.getPortNumber());
 
-					//byte[] buf,int offset, int length ,InetAddress address, int port
+					
 
 					try {
 						

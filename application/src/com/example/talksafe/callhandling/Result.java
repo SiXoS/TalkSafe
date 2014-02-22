@@ -1,6 +1,7 @@
 package com.example.talksafe.callhandling;
 
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 
 public class Result{
 	
@@ -8,9 +9,20 @@ public class Result{
 	private boolean success;
 	private String fatal;
 	private DatagramPacket response;
+	private byte[] publicKey;
+	private InetAddress ip;
+	private int receivePort;
+	private int callPort;
 	
 	public Result(DatagramPacket response, boolean success){
 		setResponse(response);
+	}
+	
+	public Result(int callPort, int receivePort, InetAddress ip, byte[] publicKey){
+		this.callPort = callPort;
+		this.receivePort = receivePort;
+		this.ip = ip;
+		this.publicKey = publicKey;
 	}
 	
 	public Result(String message, boolean success){
@@ -24,6 +36,38 @@ public class Result{
 		setFatal(fatal);
 	}
 	
+	public byte[] getPublicKey() {
+		return publicKey;
+	}
+
+	public void setPublicKey(byte[] publicKey) {
+		this.publicKey = publicKey;
+	}
+
+	public InetAddress getIp() {
+		return ip;
+	}
+
+	public void setIp(InetAddress ip) {
+		this.ip = ip;
+	}
+
+	public int getReceivePort() {
+		return receivePort;
+	}
+
+	public void setReceivePort(int receivePort) {
+		this.receivePort = receivePort;
+	}
+
+	public int getCallPort() {
+		return callPort;
+	}
+
+	public void setCallPort(int callPort) {
+		this.callPort = callPort;
+	}
+
 	public String getFatal() {
 		return fatal;
 	}
