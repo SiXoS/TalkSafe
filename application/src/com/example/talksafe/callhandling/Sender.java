@@ -1,5 +1,6 @@
 package com.example.talksafe.callhandling;
 
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -13,9 +14,11 @@ import android.util.Log;
 public class Sender extends Thread {
 
 	private InetAddress ip;
+	private Encrypter encrypter;
 
-	public Sender(InetAddress ip) {
+	public Sender(InetAddress ip, Encrypter encrypter) {
 		this.ip = ip;
+		this.encrypter = encrypter;
 	}
 
 	@Override
@@ -27,7 +30,7 @@ public class Sender extends Thread {
 
 			ApplicationState state = ApplicationState.getInstance();
 			while(!isInterrupted()) {
-				byte[] data = state.pullOutgoingSound();
+				byte[] data = encrypter.encrypt(state.pullOutgoingSound());				
 				DatagramPacket msg = new DatagramPacket(data,0, data.length,ip,13337);
 
 				try {
