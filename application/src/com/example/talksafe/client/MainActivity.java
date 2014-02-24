@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 
 import org.apache.http.conn.util.InetAddressUtils;
@@ -22,6 +23,7 @@ import com.example.talksafe.R;
 import com.example.talksafe.apicollection.Member;
 import com.example.talksafe.apicollection.UserHandler;
 import com.example.talksafe.apicollection.exceptions.MessageException;
+import com.example.talksafe.callhandling.Encrypter;
 
 public class MainActivity extends FragmentActivity {
 
@@ -29,6 +31,9 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		Encrypter enc = new Encrypter();
+		RSAPublicKey key = enc.init();
+		
 		
 		File f = new File(getFilesDir(), "registered.txt");
 		f.delete();		

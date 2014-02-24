@@ -6,10 +6,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
+
+import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 
 import com.example.talksafe.client.ApplicationState;
-
-import android.os.AsyncTask;
 
 public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	
@@ -18,6 +22,7 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	
 	private final int bufferSize = 1024;
 
+	@SuppressLint("NewApi")
 	@Override
 	protected Void doInBackground(Integer... params) {
 		
@@ -36,6 +41,15 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 						callListener.close();
 						return null;
 					}
+				
+					byte[] mod = Arrays.copyOfRange(incoming.getData(), 0, 8);;
+					byte[] exp = Arrays.copyOfRange(incoming.getData(), 8, incoming.getData().length);
+					
+					Encrypter enc = new Encrypter();
+					enc.init(mod, exp);
+					
+					Encrypter decrypt = new Encrypter();
+					RSAPublicKey key = decrypt.init();
 					
 					ApplicationState state = ApplicationState.getInstance();
 					byte[] data;
@@ -44,7 +58,12 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 						data = "Busy".getBytes();
 						result = new Result("", false, "User was busy.");
 					}else{
-						data = incoming.getData();
+						byte[] modForSender = key.getModulus().toByteArray();
+						byte[] expForSender = key.getPublicExponent().toByteArray();
+						ByteBuffer buf = ByteBuffer.allocate(mod.length + exp.length);
+						buf.put(modForSender); buf.put(expForSender);
+						data = buf.array();
+						
 						result = new Result(params[0], incoming.getPort(), incoming.getAddress(), incoming.getData());
 					}
 					
