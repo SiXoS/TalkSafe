@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.talksafe.CallView"
+            android:name="com.example.talksafe.client.CallView"
             android:label="@string/title_activity_call_view"
             android:parentActivityName="com.example.talksafe.client.MainActivity" >
         </activity>
