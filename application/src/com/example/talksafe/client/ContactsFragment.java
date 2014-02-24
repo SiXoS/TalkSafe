@@ -102,7 +102,7 @@ public class ContactsFragment extends ListFragment implements LoaderManager.Load
         
     	Intent intent = new Intent(getActivity(), CallView.class);
     	intent.putExtra(CallView.PHONE_KEY, number);
-    	intent.putExtra(CallView.NAME_KEY, "Name"); //TODO ändra till riktiga namnet
+    	intent.putExtra(CallView.NAME_KEY, name.getString(1));
     	getActivity().startActivity(intent);
     }
 
