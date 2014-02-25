@@ -10,7 +10,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
@@ -26,7 +28,6 @@ public class Caller extends AsyncTask<Void, String, Result> {
 	private String phone;
 	private TextView status;
 	private CallView activity;
-	private final byte[] delimiter = "[keyDel]".getBytes();
 	
 	public Caller(String phone, TextView status, CallView activity){
 		
@@ -36,6 +37,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 		
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	protected Result doInBackground(Void... params) {
 
@@ -56,8 +58,8 @@ public class Caller extends AsyncTask<Void, String, Result> {
 				
 				byte[] mod = key.getModulus().toByteArray();
 				byte[] exp = key.getPublicExponent().toByteArray();
-				ByteBuffer buf = ByteBuffer.allocate(mod.length + delimiter.length + exp.length);
-				buf.put(mod); buf.put(delimiter); buf.put(exp);
+				ByteBuffer buf = ByteBuffer.allocate(mod.length + exp.length);
+				buf.put(mod); buf.put(exp);
 				byte[] data = buf.array();
 				
 				InetAddress targetDevice = null;
@@ -86,6 +88,13 @@ public class Caller extends AsyncTask<Void, String, Result> {
 						try {
 							callListener.setSoTimeout(2000);
 							callListener.receive(incoming);
+							
+							byte[] modFromReceiver = Arrays.copyOfRange(incoming.getData(), 0, 8);;
+							byte[] expFromReceiver = Arrays.copyOfRange(incoming.getData(), 8, incoming.getData().length);
+							
+							Encrypter encRec = new Encrypter();
+							encRec.init(modFromReceiver, expFromReceiver);
+							
 							publishProgress("Calling user...");
 							callListener.close();
 							return new Result(incoming, true);
@@ -93,7 +102,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 						}catch(SocketTimeoutException e){
 							
 							e.printStackTrace();
-							Log.d("timeout", "TIMEOUt");
+							Log.d("timeout", "TIMEOUT");
 							callListener.close();
 							return new Result("The device did not respond", false);
 							
