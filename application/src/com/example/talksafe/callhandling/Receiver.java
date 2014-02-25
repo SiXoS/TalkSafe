@@ -9,12 +9,6 @@ import android.util.Log;
 
 public class Receiver extends Thread {
 
-	Encrypter decrypter;
-
-	public Receiver(Encrypter decrypter) {
-		this.decrypter = decrypter;
-	}
-
 	@Override
 	public void run() {
 		try {
@@ -28,7 +22,7 @@ public class Receiver extends Thread {
 
 				try {
 					callListener.receive(incoming);
-					byte[] data = decrypter.decrypt(incoming.getData());
+					byte[] data = incoming.getData();
 					state.pushIncomingSound(data);
 				} catch (Exception e) {
 					Log.e("Receiver error1", e.getMessage());

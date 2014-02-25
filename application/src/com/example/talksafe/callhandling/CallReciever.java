@@ -12,6 +12,7 @@ import java.util.Arrays;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.talksafe.client.ApplicationState;
 
@@ -28,7 +29,7 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 		
 		while(!isCancelled()){
 			try{
-				callListener = new DatagramSocket(params[0]);
+				callListener = new DatagramSocket(25565);
 				sender = new DatagramSocket();
 				
 				byte[] payload = new byte[bufferSize];
@@ -64,13 +65,14 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 						buf.put(modForSender); buf.put(expForSender);
 						data = buf.array();
 						
-						result = new Result(params[0], incoming.getPort(), incoming.getAddress(), incoming.getData());
+						result = new Result(enc, decrypt, incoming.getAddress());
 					}
 					
 					try {
 						InetAddress targetDevice = incoming.getAddress();
-						DatagramPacket toSend = new DatagramPacket(data,data.length, targetDevice,incoming.getPort());
+						DatagramPacket toSend = new DatagramPacket(data,data.length, targetDevice,25566);
 						sender.send(toSend);
+						publishProgress(result);
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
 						publishProgress(new Result("", false, e.getMessage()));
@@ -95,7 +97,7 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	
 	@Override
 	protected void onProgressUpdate(Result... results){
-		
+		Log.d("Result", results[0].toString());
 	}
 
 }

@@ -14,11 +14,9 @@ import android.util.Log;
 public class Sender extends Thread {
 
 	private InetAddress ip;
-	private Encrypter encrypter;
 
-	public Sender(InetAddress ip, Encrypter encrypter) {
+	public Sender(InetAddress ip) {
 		this.ip = ip;
-		this.encrypter = encrypter;
 	}
 
 	@Override
@@ -30,7 +28,7 @@ public class Sender extends Thread {
 
 			ApplicationState state = ApplicationState.getInstance();
 			while(!isInterrupted()) {
-				byte[] data = encrypter.encrypt(state.pullOutgoingSound());				
+				byte[] data = state.pullOutgoingSound();				
 				DatagramPacket msg = new DatagramPacket(data,0, data.length,ip,13337);
 
 				try {

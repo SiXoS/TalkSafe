@@ -71,7 +71,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 					Log.d("Connect", "target ip= " +targetDevice.toString());
 					//sender.connect(targetDevice, 25565);
 
-					DatagramPacket msg = new DatagramPacket(data,0, data.length,targetDevice,toCall.getPortNumber());
+					DatagramPacket msg = new DatagramPacket(data,0, data.length,targetDevice,25565);
 
 					
 
@@ -92,19 +92,19 @@ public class Caller extends AsyncTask<Void, String, Result> {
 							byte[] modFromReceiver = Arrays.copyOfRange(incoming.getData(), 0, 8);;
 							byte[] expFromReceiver = Arrays.copyOfRange(incoming.getData(), 8, incoming.getData().length);
 							
-							Encrypter encRec = new Encrypter();
-							encRec.init(modFromReceiver, expFromReceiver);
+							Encrypter dec = new Encrypter();
+							dec.init(modFromReceiver, expFromReceiver);
 							
 							publishProgress("Calling user...");
 							callListener.close();
-							return new Result(incoming, true);
+							return new Result(enc, dec,incoming.getAddress());
 
 						}catch(SocketTimeoutException e){
 							
 							e.printStackTrace();
 							Log.d("timeout", "TIMEOUT");
 							callListener.close();
-							return new Result("The device did not respond", false);
+							return new Result("The device did not respond", false, e.getMessage());
 							
 						} catch (IOException e) {
 							
@@ -159,6 +159,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 	
 	@Override
 	protected void onPostExecute(Result result){
+		Log.d("Result Caller", result.toString());
 		if(result.isSuccess()){
 			status.setText("Success!");
 		}else{

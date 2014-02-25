@@ -13,16 +13,18 @@ public class Result{
 	private InetAddress ip;
 	private int receivePort;
 	private int callPort;
+	private Encrypter enc;
+	private Encrypter decrypt;
 	
 	public Result(DatagramPacket response, boolean success){
 		setResponse(response);
 	}
 	
-	public Result(int callPort, int receivePort, InetAddress ip, byte[] publicKey){
-		this.callPort = callPort;
-		this.receivePort = receivePort;
-		this.ip = ip;
-		this.publicKey = publicKey;
+	public Result(Encrypter enc, Encrypter decrypt, InetAddress Ip){
+		setEnc(enc);
+		setDec(decrypt);
+		setIp(Ip);
+		setSuccess(true);
 	}
 	
 	public Result(String message, boolean success){
@@ -34,6 +36,32 @@ public class Result{
 		setMessage(message);
 		setSuccess(success);
 		setFatal(fatal);
+	}
+	
+	public String toString(){
+		StringBuffer buf = new StringBuffer();
+		buf.append("Success: " + isSuccess() + "\n");
+		buf.append("message: " + getMessage() + "\n");
+		buf.append("fatal: " + getFatal() + "\n");
+		buf.append("encrypter: " + getEnc().pubKey + "\n");
+		buf.append("decrypter: " + getDec().privKey + "\n");
+		return buf.toString();
+	}
+	
+	public Encrypter getEnc(){
+		return enc;
+	}
+	
+	public void setEnc(Encrypter enc){
+		this.enc = enc;
+	}
+	
+	public void setDec(Encrypter decrypt){
+		this.decrypt = decrypt;
+	}
+	
+	public Encrypter getDec(){
+		return decrypt;
 	}
 	
 	public byte[] getPublicKey() {

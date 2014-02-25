@@ -31,12 +31,6 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Encrypter enc = new Encrypter();
-		RSAPublicKey key = enc.init();
-		
-		
-		File f = new File(getFilesDir(), "registered.txt");
-		f.delete();		
 		
 		if(firstTime()) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
