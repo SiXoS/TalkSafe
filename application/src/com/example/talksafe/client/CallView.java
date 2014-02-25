@@ -77,6 +77,11 @@ public class CallView extends Activity {
 		
 		SoundFetcher sf = new SoundFetcher(player, decrypter);
 		SoundPusher sp = new SoundPusher(encrypter, recorder, bufferSize);
+		
+		sf.start();
+		sp.start();
+		sender.start();
+		receiver.start();
 	}
 
 }

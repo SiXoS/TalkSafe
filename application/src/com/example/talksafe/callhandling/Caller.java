@@ -56,10 +56,10 @@ public class Caller extends AsyncTask<Void, String, Result> {
 				DatagramSocket callListener = new DatagramSocket(25566);
 				DatagramSocket sender = new DatagramSocket();
 				
-				//byte[] mod = key.getModulus().toByteArray();
-				byte[] exp = key.getPublicExponent().toByteArray();
-				ByteBuffer buf = ByteBuffer.allocate(exp.length);
-				buf.put(exp);
+				byte[] mod = key.getModulus().toByteArray();
+				//byte[] exp = key.getPublicExponent().toByteArray();
+				ByteBuffer buf = ByteBuffer.allocate(mod.length);
+				buf.put(mod);
 				byte[] data = buf.array();
 				
 				InetAddress targetDevice = null;
@@ -89,8 +89,8 @@ public class Caller extends AsyncTask<Void, String, Result> {
 							callListener.setSoTimeout(5000);
 							callListener.receive(incoming);
 							
-							byte[] modFromReceiver = key.getModulus().toByteArray();
-							byte[] expFromReceiver = incoming.getData();
+							byte[] modFromReceiver = incoming.getData();
+							byte[] expFromReceiver = key.getPublicExponent().toByteArray();
 							ByteBuffer b = ByteBuffer.allocate(modFromReceiver.length);
 							b.put(modFromReceiver);
 							Log.d("Modulus på tåg", b.toString());
@@ -165,6 +165,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 		Log.d("Result Caller", result.toString());
 		if(result.isSuccess()){
 			status.setText("Success!");
+			CallView.startCall(result.getEnc(), result.getDec(), result.getIp());
 		}else{
 			Log.d("Caller failed", result.getFatal() + " ");
 			status.setText(result.getMessage());

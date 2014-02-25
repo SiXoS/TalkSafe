@@ -1,6 +1,7 @@
 package com.example.talksafe.callhandling;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -15,13 +16,14 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.talksafe.client.ApplicationState;
+import com.example.talksafe.client.CallView;
 
 public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	
 	private DatagramSocket callListener;
 	private DatagramSocket sender;
 	
-	private final int bufferSize = 1024;
+	private final int bufferSize = 128;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -52,8 +54,11 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 					Encrypter decrypt = new Encrypter();
 					RSAPublicKey key = decrypt.init();
 					
-					byte[] mod = key.getModulus().toByteArray();
-					byte[] exp = incoming.getData();
+					byte[] mod = incoming.getData();
+					byte[] exp = key.getPublicExponent().toByteArray();
+					
+					BigInteger shit = new BigInteger(exp);
+					Log.d("BigInteger", shit.toString());
 					
 					Encrypter enc = new Encrypter();
 					enc.init(mod, exp);
@@ -64,13 +69,14 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 					if(state.isBusy()){
 						data = "Busy".getBytes();
 						result = new Result("", false, "User was busy.");
+						Log.d("Busy", "wtf");
 					}else{
 						byte[] modForSender = key.getModulus().toByteArray();
 						byte[] expForSender = key.getPublicExponent().toByteArray();
-						ByteBuffer buf = ByteBuffer.allocate(mod.length + exp.length);
-						buf.put(modForSender); buf.put(expForSender);
+						ByteBuffer buf = ByteBuffer.allocate(modForSender.length);
+						buf.put(modForSender);
 						data = buf.array();
-						
+						Log.d("Buffer", buf.toString());
 						result = new Result(enc, decrypt, incoming.getAddress());
 					}
 					
@@ -79,6 +85,7 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 						Log.d("SKICKa TILLBAKA", "target="+targetDevice);
 						DatagramPacket toSend = new DatagramPacket(data,data.length, targetDevice,25566);
 						sender.send(toSend);
+						callListener.close();
 						publishProgress(result);
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
@@ -110,7 +117,10 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	
 	@Override
 	protected void onProgressUpdate(Result... results){
-		Log.d("Result", results[0].toString());
+		Result result = results[0];
+		if(result.isSuccess()){
+			CallView.startCall(result.getEnc(), result.getDec(), result.getIp());
+		}
 	}
 
 }

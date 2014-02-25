@@ -2,6 +2,7 @@ package com.example.talksafe.callhandling;
 
 import java.math.BigInteger;
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
@@ -27,6 +28,7 @@ public class Encrypter{
 			KeyPair keyPair = kpg.generateKeyPair();
 	
 			privKey = keyPair.getPrivate();
+			Log.d("Private key:" , "Modulus:{" + ((RSAPrivateKey)privKey).getModulus() + "}exp:{" + ((RSAPrivateKey)privKey).getPrivateExponent() + "}");
 			pubKey = null;
 			initDecrypt();
 			return (RSAPublicKey)keyPair.getPublic();
@@ -48,6 +50,7 @@ public class Encrypter{
 			
 			KeyFactory factory = KeyFactory.getInstance("RSA");
 			pubKey = factory.generatePublic(spec);
+			Log.d("Public key:" , "Modulus:{" + ((RSAPublicKey)pubKey).getModulus() + "}exp:{" + ((RSAPublicKey)pubKey).getPublicExponent() + "}");
 			initEncrypt();
 			
 		} catch (NoSuchAlgorithmException e) {
