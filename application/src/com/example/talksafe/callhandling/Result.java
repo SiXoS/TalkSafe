@@ -5,9 +5,9 @@ import java.net.InetAddress;
 
 public class Result{
 	
-	private String message;
+	private String message = "";
 	private boolean success;
-	private String fatal;
+	private String fatal = "";
 	private DatagramPacket response;
 	private byte[] publicKey;
 	private InetAddress ip;
@@ -43,8 +43,8 @@ public class Result{
 		buf.append("Success: " + isSuccess() + "\n");
 		buf.append("message: " + getMessage() + "\n");
 		buf.append("fatal: " + getFatal() + "\n");
-		buf.append("encrypter: " + getEnc().pubKey + "\n");
-		buf.append("decrypter: " + getDec().privKey + "\n");
+		buf.append("encrypter: " + (getEnc() != null ? getEnc().pubKey : "") + "\n");
+		buf.append("decrypter: " + (getEnc() != null ? getEnc().pubKey : "") + "\n");
 		return buf.toString();
 	}
 	

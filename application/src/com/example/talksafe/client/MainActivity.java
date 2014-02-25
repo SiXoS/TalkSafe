@@ -8,29 +8,32 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
-
 import org.apache.http.conn.util.InetAddressUtils;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
-
 import com.example.talksafe.R;
 import com.example.talksafe.apicollection.Member;
 import com.example.talksafe.apicollection.UserHandler;
 import com.example.talksafe.apicollection.exceptions.MessageException;
+import com.example.talksafe.callhandling.CallReciever;
 import com.example.talksafe.callhandling.Encrypter;
 
 public class MainActivity extends FragmentActivity {
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		(new CallReciever()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		
 		if(firstTime()) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -120,6 +123,11 @@ public class MainActivity extends FragmentActivity {
 				Log.e("GuC", "Error getting ip address");
 			}
 			Member member = new Member(phone, IpAddr, 25566);
+			try {
+				member.phoneNumberToHash();
+			} catch (Exception e1) {
+				Log.e("MEMBER fel", e1.getMessage());
+			}
 			UserHandler handler = new UserHandler();
 			try {
 				handler.add(member);

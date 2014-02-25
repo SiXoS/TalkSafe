@@ -28,6 +28,12 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	protected Void doInBackground(Integer... params) {
 		
 		while(!isCancelled()){
+			Log.d("Lyssnar", "jajjemen");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				return null;
+			}
 			try{
 				callListener = new DatagramSocket(25565);
 				sender = new DatagramSocket();
@@ -43,14 +49,14 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 						return null;
 					}
 				
-					byte[] mod = Arrays.copyOfRange(incoming.getData(), 0, 8);;
-					byte[] exp = Arrays.copyOfRange(incoming.getData(), 8, incoming.getData().length);
+					Encrypter decrypt = new Encrypter();
+					RSAPublicKey key = decrypt.init();
+					
+					byte[] mod = key.getModulus().toByteArray();
+					byte[] exp = incoming.getData();
 					
 					Encrypter enc = new Encrypter();
 					enc.init(mod, exp);
-					
-					Encrypter decrypt = new Encrypter();
-					RSAPublicKey key = decrypt.init();
 					
 					ApplicationState state = ApplicationState.getInstance();
 					byte[] data;
@@ -70,23 +76,30 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 					
 					try {
 						InetAddress targetDevice = incoming.getAddress();
+						Log.d("SKICKa TILLBAKA", "target="+targetDevice);
 						DatagramPacket toSend = new DatagramPacket(data,data.length, targetDevice,25566);
 						sender.send(toSend);
 						publishProgress(result);
 					} catch (UnknownHostException e) {
 						e.printStackTrace();
+						callListener.close();
 						publishProgress(new Result("", false, e.getMessage()));
+						callListener.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 						publishProgress(new Result("", false, e.getMessage()));
+						callListener.close();
 					}	
 					
+					
 				} catch (IOException e) {
+					callListener.close();
 					e.printStackTrace();
 					publishProgress(new Result("", false, e.getMessage()));
 				}		
 				
 			}catch(SocketException e){
+				callListener.close();
 				e.printStackTrace();
 				publishProgress(new Result("", false, e.getMessage()));
 			}

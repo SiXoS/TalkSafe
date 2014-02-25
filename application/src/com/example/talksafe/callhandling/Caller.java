@@ -40,7 +40,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 	@SuppressLint("NewApi")
 	@Override
 	protected Result doInBackground(Void... params) {
-
+		Log.d("inne i call", "japp");
 		ApplicationState state = ApplicationState.getInstance();
 		state.setBusy(true);
 		Encrypter enc = new Encrypter();
@@ -56,10 +56,10 @@ public class Caller extends AsyncTask<Void, String, Result> {
 				DatagramSocket callListener = new DatagramSocket(25566);
 				DatagramSocket sender = new DatagramSocket();
 				
-				byte[] mod = key.getModulus().toByteArray();
+				//byte[] mod = key.getModulus().toByteArray();
 				byte[] exp = key.getPublicExponent().toByteArray();
-				ByteBuffer buf = ByteBuffer.allocate(mod.length + exp.length);
-				buf.put(mod); buf.put(exp);
+				ByteBuffer buf = ByteBuffer.allocate(exp.length);
+				buf.put(exp);
 				byte[] data = buf.array();
 				
 				InetAddress targetDevice = null;
@@ -86,11 +86,14 @@ public class Caller extends AsyncTask<Void, String, Result> {
 						DatagramPacket incoming = new DatagramPacket(payload, data.length);	
 
 						try {
-							callListener.setSoTimeout(2000);
+							callListener.setSoTimeout(5000);
 							callListener.receive(incoming);
 							
-							byte[] modFromReceiver = Arrays.copyOfRange(incoming.getData(), 0, 8);;
-							byte[] expFromReceiver = Arrays.copyOfRange(incoming.getData(), 8, incoming.getData().length);
+							byte[] modFromReceiver = key.getModulus().toByteArray();
+							byte[] expFromReceiver = incoming.getData();
+							ByteBuffer b = ByteBuffer.allocate(modFromReceiver.length);
+							b.put(modFromReceiver);
+							Log.d("Modulus på tåg", b.toString());
 							
 							Encrypter dec = new Encrypter();
 							dec.init(modFromReceiver, expFromReceiver);
@@ -163,7 +166,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 		if(result.isSuccess()){
 			status.setText("Success!");
 		}else{
-			Log.d("Caller failed", result.getFatal());
+			Log.d("Caller failed", result.getFatal() + " ");
 			status.setText(result.getMessage());
 			try {
 				Thread.sleep(2000);

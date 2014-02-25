@@ -1,7 +1,8 @@
 package com.example.talksafe.client;
 
 import java.net.InetAddress;
-
+import java.util.concurrent.Executors;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioFormat;
@@ -9,11 +10,13 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
-
 import com.example.talksafe.R;
+import com.example.talksafe.callhandling.Caller;
 import com.example.talksafe.callhandling.Encrypter;
 import com.example.talksafe.callhandling.Receiver;
 import com.example.talksafe.callhandling.Sender;
@@ -29,6 +32,7 @@ public class CallView extends Activity {
 	private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
 	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,8 +46,10 @@ public class CallView extends Activity {
 		
 		((TextView) findViewById(R.id.phone)).setText(phone);
 		
-		((TextView) findViewById(R.id.status)).setText("Looking up user...");
-		
+		((TextView) findViewById(R.id.status)).setText("Looking up user");
+		Log.d("Innan call", "innan");
+		Caller call = new Caller(phone,((TextView) findViewById(R.id.status)),this);
+		call.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		
 	}
 
