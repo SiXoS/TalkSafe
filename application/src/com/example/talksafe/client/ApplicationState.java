@@ -1,6 +1,7 @@
 package com.example.talksafe.client;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,12 +18,12 @@ public class ApplicationState {
 	private Condition incomingEncryptedHasContent = incLock.newCondition();
 	private Condition outgoingEncryptedHasContent = outLock.newCondition();
 	
-	private ByteBuffer incomingEncrypted;
-	private ByteBuffer outgoingEncrypted;
+	private LinkedList<byte[]> incomingEncrypted;
+	private LinkedList<byte[]> outgoingEncrypted;
 	
 	private ApplicationState(){
-		incomingEncrypted = ByteBuffer.allocate(1024);
-		outgoingEncrypted = ByteBuffer.allocate(1024);
+		incomingEncrypted = new LinkedList<byte[]>();
+		outgoingEncrypted = new LinkedList<byte[]>();
 	}
 	
 
@@ -30,7 +31,7 @@ public class ApplicationState {
 	public void pushIncomingSound(byte[] sound){
 		incLock.lock();
 		
-		incomingEncrypted.put(sound);
+		incomingEncrypted.add(sound);
 		incomingEncryptedHasContent.signal();
 		
 		incLock.unlock();
@@ -40,11 +41,10 @@ public class ApplicationState {
 		incLock.lock();
 		
 		try{
-			while(incomingEncrypted.position() != 0) incomingEncryptedHasContent.await();
+			while(incomingEncrypted.isEmpty()) incomingEncryptedHasContent.await();
 		}catch(Exception e){}
 		
-		byte[] bytes = incomingEncrypted.array();
-		incomingEncrypted = (ByteBuffer)incomingEncrypted.clear();
+		byte[] bytes = incomingEncrypted.removeLast();
 		
 		incLock.unlock();
 		return bytes;
@@ -53,7 +53,7 @@ public class ApplicationState {
 	public void pushOutgoingSound(byte[] sound){
 		outLock.lock();
 		
-		outgoingEncrypted.put(sound);
+		outgoingEncrypted.add(sound);
 		outgoingEncryptedHasContent.signal();
 		
 		outLock.unlock();
@@ -63,11 +63,10 @@ public class ApplicationState {
 		outLock.lock();
 		
 		try{
-			while(outgoingEncrypted.position() != 0) outgoingEncryptedHasContent.await();
+			while(!outgoingEncrypted.isEmpty()) outgoingEncryptedHasContent.await();
 		}catch(Exception e){}
 		
-		byte[] bytes = outgoingEncrypted.array();
-		outgoingEncrypted = (ByteBuffer)outgoingEncrypted.clear();
+		byte[] bytes = outgoingEncrypted.removeLast();
 		
 		outLock.unlock();
 		return bytes;

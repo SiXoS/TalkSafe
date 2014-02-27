@@ -8,7 +8,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
+
 import org.apache.http.conn.util.InetAddressUtils;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -18,12 +20,13 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
+
 import com.example.talksafe.R;
 import com.example.talksafe.apicollection.Member;
 import com.example.talksafe.apicollection.UserHandler;
 import com.example.talksafe.apicollection.exceptions.MessageException;
 import com.example.talksafe.callhandling.CallReciever;
-import com.example.talksafe.callhandling.Encrypter;
+import com.example.talksafe.callhandling.util.Encrypter;
 
 public class MainActivity extends FragmentActivity {
 

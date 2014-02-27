@@ -3,6 +3,7 @@ package com.example.talksafe.callhandling;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.example.talksafe.callhandling.util.Encrypter;
 import com.example.talksafe.client.ApplicationState;
 
 import android.media.AudioRecord;

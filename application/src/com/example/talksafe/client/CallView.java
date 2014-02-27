@@ -2,6 +2,7 @@ package com.example.talksafe.client;
 
 import java.net.InetAddress;
 import java.util.concurrent.Executors;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -15,13 +16,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
+
 import com.example.talksafe.R;
 import com.example.talksafe.callhandling.Caller;
-import com.example.talksafe.callhandling.Encrypter;
 import com.example.talksafe.callhandling.Receiver;
 import com.example.talksafe.callhandling.Sender;
 import com.example.talksafe.callhandling.SoundFetcher;
 import com.example.talksafe.callhandling.SoundPusher;
+import com.example.talksafe.callhandling.util.Encrypter;
 
 public class CallView extends Activity {
 	
