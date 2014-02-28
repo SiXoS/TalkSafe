@@ -18,6 +18,7 @@ public class SoundFetcher extends Thread {
 	
 	@Override
 	public void run(){
+		Log.d("hej", "tjo");
 		
 		int counter = 100000;
 		boolean notWorking = true;
@@ -38,9 +39,16 @@ public class SoundFetcher extends Thread {
 		byte[] temp = new byte[128], temp2 = new byte[115];
 		ApplicationState state = ApplicationState.getInstance();
 		while(!isInterrupted()) {
+			Log.d("Interrupted", "ne");
 			temp = state.pullIncomingSound();
 			//temp2 = decrypter.decrypt(temp);
+			Log.d("SoundFetcher", "playing sound");
 			player.write(temp, 0, temp.length);
+			try {
+				sleep(1);
+			} catch (InterruptedException e) {
+				Log.d("SoundFetcher", e.getMessage());
+			}
 		}
 		player.stop();
 		player.release();

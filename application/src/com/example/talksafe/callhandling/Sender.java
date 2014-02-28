@@ -21,20 +21,20 @@ public class Sender extends Thread {
 
 	@Override
 	public void run() {
+		Log.d("hej", "tjo");
 		DatagramSocket sender;
 		try {
 			sender = new DatagramSocket();
-			Log.d("Connect", "target ip= " +ip.toString());
 
 			ApplicationState state = ApplicationState.getInstance();
 			while(!isInterrupted()) {
-				byte[] data = state.pullOutgoingSound();				
+				byte[] data = state.pullOutgoingSound();			
+				Log.d("Jävla mor", (data==null)  + "");
 				DatagramPacket msg = new DatagramPacket(data,0, data.length,ip,13337);
 
 				try {
-					Log.d("Sender", (sender==null) +"");
 					sender.send(msg);
-					
+					Log.d("Sender", "sending sound");
 				} catch(Exception e) {
 					Log.e("Sender SendException", e.getMessage());
 				}

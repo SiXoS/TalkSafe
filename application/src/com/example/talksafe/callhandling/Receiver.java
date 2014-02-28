@@ -11,6 +11,7 @@ public class Receiver extends Thread {
 
 	@Override
 	public void run() {
+		Log.d("hej", "tjo");
 		try {
 			DatagramSocket callListener = new DatagramSocket(13337);
 
@@ -23,6 +24,7 @@ public class Receiver extends Thread {
 				try {
 					callListener.receive(incoming);
 					byte[] data = incoming.getData();
+					Log.d("Reciever", "recieving sound");
 					state.pushIncomingSound(data);
 				} catch (Exception e) {
 					Log.e("Receiver error1", e.getMessage());

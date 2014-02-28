@@ -63,7 +63,7 @@ public class ApplicationState {
 		outLock.lock();
 		
 		try{
-			while(!outgoingEncrypted.isEmpty()) outgoingEncryptedHasContent.await();
+			while(outgoingEncrypted.isEmpty()) outgoingEncryptedHasContent.await();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
