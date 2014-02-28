@@ -44,7 +44,7 @@ public class Caller extends AsyncTask<Void, String, Result> {
 	protected Result doInBackground(Void... params) {
 		Log.d("inne i call", "japp");
 		ApplicationState state = ApplicationState.getInstance();
-		state.setBusy(true);
+		//state.setBusy(true);
 		Encrypter enc = new Encrypter();
 		RSAPublicKey key = enc.init();
 		publishProgress("Looking up user...");

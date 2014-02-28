@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +20,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.example.talksafe.client.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,7 +31,8 @@
         <activity
             android:name="com.example.talksafe.client.CallView"
             android:label="@string/title_activity_call_view"
-            android:parentActivityName="com.example.talksafe.client.MainActivity" >
+            android:parentActivityName="com.example.talksafe.client.MainActivity" 
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

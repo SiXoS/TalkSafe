@@ -64,9 +64,11 @@ public class ApplicationState {
 		
 		try{
 			while(!outgoingEncrypted.isEmpty()) outgoingEncryptedHasContent.await();
-		}catch(Exception e){}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		
-		byte[] bytes = outgoingEncrypted.removeLast();
+		byte[] bytes = outgoingEncrypted.poll();
 		
 		outLock.unlock();
 		return bytes;

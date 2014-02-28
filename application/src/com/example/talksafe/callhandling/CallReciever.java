@@ -31,23 +31,19 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 	@Override
 	protected Void doInBackground(Integer... params) {
 		
-		while(!isCancelled()){
+		//while(!isCancelled()){
 			Log.d("Lyssnar", "jajjemen");
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e1) {
-				return null;
-			}
 			try{
 				callListener = new DatagramSocket(25565);
 				sender = new DatagramSocket();
-				
+				Log.d("Call listener null?", (callListener==null) + "");
 				byte[] payload = new byte[bufferSize];
 				DatagramPacket incoming = new DatagramPacket(payload, bufferSize);	
 				
 				try {
-					callListener.receive(incoming);
 					
+					callListener.receive(incoming);
+					Log.d("tog emot", new BigInteger(incoming.getData()).toString());
 					if(isCancelled()){
 						callListener.close();
 						return null;
@@ -93,7 +89,6 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 						e.printStackTrace();
 						callListener.close();
 						publishProgress(new Result("", false, e.getMessage()));
-						callListener.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 						publishProgress(new Result("", false, e.getMessage()));
@@ -108,11 +103,10 @@ public class CallReciever extends AsyncTask<Integer, Result, Void> {
 				}		
 				
 			}catch(SocketException e){
-				callListener.close();
 				e.printStackTrace();
 				publishProgress(new Result("", false, e.getMessage()));
 			}
-		}
+		//}
 		return null;
 		
 	}

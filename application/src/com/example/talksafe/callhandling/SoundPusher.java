@@ -30,19 +30,19 @@ public class SoundPusher extends Thread {
 		
 		while(!interrupted()){
 		
-			byte[] data = new byte[bufferSize];
+			byte[] data = new byte[115];
 			recorder.read(data, 0, 115);
-			System.out.println("Short wirting to file" + data.toString());
+			System.out.println("Short flirting to file" + data.toString());
 	
 			// // writes the data to file from buffer
 			// // stores the voice buffer
-			byte[] tmp = new byte[115];
+			byte[] tmp = new byte[128];
 	
 			Log.d("enc", "Encrypting in Main");
 			Log.d("enc null", encrypter==null ? "den e null" : "inte null");
 
-			tmp = encrypter.encrypt(data);
-			state.pushOutgoingSound(tmp);
+			//tmp = encrypter.encrypt(data);
+			state.pushOutgoingSound(data);
 			
 		}
 

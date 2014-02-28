@@ -39,8 +39,8 @@ public class SoundFetcher extends Thread {
 		ApplicationState state = ApplicationState.getInstance();
 		while(!isInterrupted()) {
 			temp = state.pullIncomingSound();
-			temp2 = decrypter.decrypt(temp);
-			player.write(temp2, 0, temp2.length);
+			//temp2 = decrypter.decrypt(temp);
+			player.write(temp, 0, temp.length);
 		}
 		player.stop();
 		player.release();
