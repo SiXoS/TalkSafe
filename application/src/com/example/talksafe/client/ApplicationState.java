@@ -44,7 +44,7 @@ public class ApplicationState {
 			while(incomingEncrypted.isEmpty()) incomingEncryptedHasContent.await();
 		}catch(Exception e){}
 		
-		byte[] bytes = incomingEncrypted.removeLast();
+		byte[] bytes = incomingEncrypted.poll();
 		
 		incLock.unlock();
 		return bytes;
