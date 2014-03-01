@@ -70,18 +70,19 @@ public class CallView extends Activity {
 		int intSize = android.media.AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_MONO,
 				AudioFormat.ENCODING_PCM_16BIT); 
 		AudioTrack player = new AudioTrack(AudioManager.STREAM_VOICE_CALL, 8000, AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT, intSize, AudioTrack.MODE_STREAM);
+				AudioFormat.ENCODING_PCM_16BIT, 48000, AudioTrack.MODE_STREAM);
 		int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
 				RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+		Log.d("Audio bufsize", bufferSize + "");
 		AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
 				RECORDER_SAMPLERATE, RECORDER_CHANNELS,
-				RECORDER_AUDIO_ENCODING, bufferSize);
+				RECORDER_AUDIO_ENCODING, 48000);
 		
 		SoundFetcher sf = new SoundFetcher(player, decrypter);
 		SoundPusher sp = new SoundPusher(encrypter, recorder, bufferSize);
 		
 		sf.start();
-		//sp.start();
+		sp.start();
 		sender.start();
 		receiver.start();
 	}

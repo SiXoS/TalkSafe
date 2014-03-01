@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
@@ -43,9 +44,11 @@ public class MainActivity extends FragmentActivity {
 
 			alert.setTitle("Phone number");
 			alert.setMessage("Type your phone number to register to the app.");
-
+			alert.setCancelable(false);
 			// Set an EditText view to get user input 
 			final EditText input = new EditText(this);
+			input.setInputType(InputType.TYPE_CLASS_PHONE);
+			
 			alert.setView(input);
 
 			alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
